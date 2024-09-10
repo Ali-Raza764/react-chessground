@@ -1,0 +1,22 @@
+/* Green Theme */
+.theme-green cg-board {
+  background-color: #f0d9b5;
+  background-image: url("./backgrounds/green.svg");
+}
+
+/* Blue Theme */
+.theme-blue cg-board {
+  background-color: #d9e6f0;
+  background-image: url("./backgrounds/blue.svg");
+}
+
+/* Red Theme */
+.theme-red cg-board {
+  background-color: #f0d9d9;
+  background-image: url("./backgrounds/purple.svg");
+}
+/* Brown Theme */
+.theme-brown cg-board {
+  background-color: #f0d9d9;
+  background-image: url("./backgrounds/brown.svg");
+}

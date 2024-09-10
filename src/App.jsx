@@ -1,33 +1,51 @@
 import { useState } from "react";
-import Chessboard from "./Chessboard";
+import Chessboard from "./components/Chessboard";
+import { Chess } from "chess.js";
+import useChessSounds from "./lib/useSound";
 
 function App() {
+  const [chess] = useState(new Chess());
   const [fen, setFen] = useState(
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   );
-  const [message, setMessage] = useState("");
+  const { handleMoveSounds } = useChessSounds(chess);
+  const [customArrows, setCustomArrows] = useState([]);
 
-  const handleMove = (from, to, newFen) => {
-    console.log(`Move from ${from} to ${to}`);
-    setFen(newFen);
-    setMessage(`Move: ${from} to ${to}`);
+  const handleMove = (move) => {
+    handleMoveSounds(move);
+    // We can use somthing like this when the opponnent moves or when the game starts or you solve one move of the puzzle and the next move happpens by itself
+    // setTimeout(() => {
+    //   try {
+    //     const move = chess.move({ from: "e7", to: "e5" });
+    //     handleMoveSounds(move);
+    //     setFen(chess.fen());
+    //   } catch (error) {}
+    // }, 1000);
   };
 
-  const handleInvalidMove = (from, to) => {
-    console.log(`Invalid move attempted from ${from} to ${to}`);
-    setMessage(`Invalid move: ${from} to ${to}`);
+  const showCustommArrows = () => {
+    setCustomArrows([
+      {
+        orig: "a2",
+        dest: "a6",
+        brush: "blue",
+        modifiers: {
+          lineWidth: "12",
+        },
+      },
+    ]);
   };
-
   return (
     <div className="App">
-      <h1>My Chess App</h1>
       <Chessboard
         initialFen={fen}
+        chess={chess}
         orientation="white"
         onMove={handleMove}
-        onInvalidMove={handleInvalidMove}
+        allowMoveOpponentPieces={false}
+        customArrows={customArrows}
       />
-      <p>{message}</p>
+      <button onClick={showCustommArrows}>Show Hints Arrows</button>
     </div>
   );
 }
