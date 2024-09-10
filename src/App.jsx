@@ -4,10 +4,11 @@ import { Chess } from "chess.js";
 import useChessSounds from "./lib/useSound";
 
 function App() {
-  const [chess] = useState(new Chess());
   const [fen, setFen] = useState(
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    "rnbqkbnr/ppppppPp/8/8/8/8/PPPPP1PP/RNBQKBNR w KQkq - 0 1"
   );
+  // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 For initial position
+  const [chess] = useState(new Chess(fen));
   const { handleMoveSounds } = useChessSounds(chess);
   const [customArrows, setCustomArrows] = useState([]);
 
@@ -36,16 +37,18 @@ function App() {
     ]);
   };
   return (
-    <div className="App">
+    <div className="App md:p-6">
       <Chessboard
         initialFen={fen}
         chess={chess}
         orientation="white"
         onMove={handleMove}
-        allowMoveOpponentPieces={false}
+        allowMoveOpponentPieces={true}
         customArrows={customArrows}
       />
-      <button onClick={showCustommArrows}>Show Hints Arrows</button>
+      <button onClick={showCustommArrows} className="p-2 border rounded-md m-4">
+        Show Hints Arrows
+      </button>
     </div>
   );
 }

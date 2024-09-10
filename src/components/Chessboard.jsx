@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Chessground as NativeChessground } from "chessground";
 import "../assets/board/chess.css";
 import "../assets/board/theme.css";
+import PromotionDialog from "./PromotionDialog";
 
 const Chessboard = ({
   initialFen,
@@ -14,6 +15,8 @@ const Chessboard = ({
   const chessgroundRef = useRef(null);
   const apiRef = useRef(null);
   const [theme, setTheme] = useState("theme-green");
+  const [promotionDialogOpen, setPromotionDialogOpen] = useState(false);
+  const [pendingMove, setPendingMove] = useState(null);
 
   useEffect(() => {
     //! Initialize Chessground Configration
@@ -27,9 +30,7 @@ const Chessboard = ({
           select: handleSelected,
         },
         movable: {
-          color: !allowMoveOpponentPieces
-            ? orientation === "white" && "white"
-            : "both",
+          color: !allowMoveOpponentPieces ? orientation : "both",
           showDests: true,
         },
         highlight: {
@@ -77,13 +78,22 @@ const Chessboard = ({
     }
   };
 
-  const handleMove = (orig, dest, piece) => {
+  const handleMove = (orig, dest, capturedPiece) => {
+    const piece = chess.get(orig);
+    const isPromotion =
+      piece && piece.type === "p" && (dest[1] === "8" || dest[1] === "1");
+
+    if (isPromotion) {
+      setPendingMove({ from: orig, to: dest });
+      setPromotionDialogOpen(true);
+    } else {
+      makeMove(orig, dest);
+    }
+  };
+
+  const makeMove = (from, to, promotion) => {
     try {
-      const move = chess.move({
-        from: orig,
-        to: dest,
-        promotion: "q",
-      });
+      const move = chess.move({ from, to, promotion: promotion || "q" });
       if (move) {
         updateChessboardState(move);
         onMove(move);
@@ -91,6 +101,16 @@ const Chessboard = ({
     } catch (error) {
       resetChessboardState();
     }
+  };
+
+  const handlePromotion = (promotionPiece) => {
+    console.log(promotionPiece);
+
+    if (pendingMove) {
+      makeMove(pendingMove.from, pendingMove.to, promotionPiece);
+    }
+    setPromotionDialogOpen(false);
+    setPendingMove(null);
   };
 
   const updateChessboardState = (move) => {
@@ -127,9 +147,18 @@ const Chessboard = ({
   return (
     <div className={`chessboard-container ${theme}`}>
       <div ref={chessgroundRef} style={{ width: "500px", height: "500px" }} />
-      <button onClick={toggleTheme} className="theme-toggle-button">
+      <button onClick={toggleTheme} className="theme-toggle-button p-2 border rounded-md m-4">
         Toggle Theme
       </button>
+      <PromotionDialog
+        isOpen={promotionDialogOpen}
+        onClose={() => {
+          setPromotionDialogOpen(false);
+          resetChessboardState();
+        }}
+        onPromote={handlePromotion}
+        color={chess.turn()}
+      />
     </div>
   );
 };
