@@ -14,9 +14,11 @@ const Chessboard = ({
 }) => {
   const chessgroundRef = useRef(null);
   const apiRef = useRef(null);
-  const [theme, setTheme] = useState("theme-green");
+  const [theme, setTheme] = useState("theme-brown");
   const [promotionDialogOpen, setPromotionDialogOpen] = useState(false);
   const [pendingMove, setPendingMove] = useState(null);
+  const containerRef = useRef(null);
+  const [boardWidth, setBoardWidth] = useState(500);
 
   useEffect(() => {
     //! Initialize Chessground Configration
@@ -30,6 +32,7 @@ const Chessboard = ({
           select: handleSelected,
         },
         movable: {
+          free: false,
           color: !allowMoveOpponentPieces ? orientation : "both",
           showDests: true,
         },
@@ -37,8 +40,8 @@ const Chessboard = ({
           lastMove: true,
           check: true,
         },
-        drawable: {
-          autoShapes: [],
+        draggable: {
+          enabled: true,
         },
       });
     }
@@ -63,6 +66,22 @@ const Chessboard = ({
       },
     });
   }, [customArrows]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const newBoardWidth = Math.min(containerWidth, 500);
+        setBoardWidth(newBoardWidth);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const handleSelected = (key) => {
     const dests = new Map();
@@ -145,9 +164,15 @@ const Chessboard = ({
   };
 
   return (
-    <div className={`chessboard-container ${theme}`}>
-      <div ref={chessgroundRef} style={{ width: "500px", height: "500px" }} />
-      <button onClick={toggleTheme} className="theme-toggle-button p-2 border rounded-md m-4">
+    <div className={`chessboard-container ${theme} flex items-center justify-center flex-col md:block`} ref={containerRef}>
+      <div
+        ref={chessgroundRef}
+        style={{ width: boardWidth, height: boardWidth }}
+      />
+      <button
+        onClick={toggleTheme}
+        className="theme-toggle-button p-2 border rounded-md m-4"
+      >
         Toggle Theme
       </button>
       <PromotionDialog
