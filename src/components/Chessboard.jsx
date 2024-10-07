@@ -19,7 +19,7 @@ const Chessboard = ({
   const [pendingMove, setPendingMove] = useState(null);
   const containerRef = useRef(null);
   const [boardWidth, setBoardWidth] = useState(500);
-
+  
   useEffect(() => {
     //! Initialize Chessground Configration
     if (chessgroundRef.current && !apiRef.current) {
@@ -57,7 +57,7 @@ const Chessboard = ({
         apiRef.current = null;
       }
     };
-  }, [initialFen]);
+  }, [initialFen, chess]);
 
   useEffect(() => {
     apiRef.current.set({
